@@ -1,6 +1,6 @@
 // GLISSADES //
 s.boot;
-s.quit;
+
 
 (/* VU METRE & FREQSCOPE */ w = Window.new("Levels");w.visible = true; r.free; r = ServerMeterView.new(s,w,0@0,2,2);
 f.free; f = FreqScope.new(800,600,0,server:s); f.window.front;)
