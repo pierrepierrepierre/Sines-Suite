@@ -35,8 +35,8 @@ SynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out
 	,\freqLag,0.05
 	,\pan,1.0.bilinrand
 	,\panMod,0
-	,\amp,0.03
-	,\ampLag,10
+	,\amp,0.05
+	,\ampLag,0.1
 )});)
 
 /* CONTROL AU HASARD -- Panoramique modulation */
@@ -51,10 +51,10 @@ SynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out
  /*CONTROL PRECIS */
 ~info.value(~sines)
 
-(~sines[2
+(~sines[3
 ].set(
-	\freq,572 + 30.0.rand
-	,\freqLag, 1000
+	\freq,402 + 30.0.rand
+	,\freqLag, 100
 	,\amp, 0.025
 	,\ampLag, 500
 ))
