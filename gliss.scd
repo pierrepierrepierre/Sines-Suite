@@ -15,12 +15,11 @@ SynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out
 	Out.ar(out,Pan2.ar(SinOsc.ar(freq),pano, amp));
 },[10,0,0,10,10]).add;
 
-~info = {arg group; group.size.do({arg i; ~sines[i].get(\freq, {arg val; (i+"").post; val.postln;})})}
+~info = {arg group; group.size.do({arg i; ~sines[i].get(\freq, {arg val; (i+"").post; val.post;}); ~sines[i].get(\amp, {arg val; " : ".post; val.round(0.001).postln})})}
 )
 
-
 /* BATCH MAKE */
-( ~sines.do({arg i; i.free}); ~sines = 8.collect({arg i; Synth(\gliss,[
+( ~sines.do({arg i; i.free}); ~sines = 3.collect({arg i; Synth(\gliss,[
 	\freq,rrand(2060,5500).postln
 	,\freqLag,0.025
 	,\panLag,20
@@ -46,15 +45,18 @@ SynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out
 /* CONTROL au HASARD -- Freqs */
 ~sines[~sines.size.rand.post].set(\freq, exprand(460, 1210), \freqLag, 350, \amp, 0.025, \ampLag, 0.01)
 
+/* ADD */
+~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.001,\freq, 1480.rand + 10.0.rand]))
+
  /*CONTROL PRECIS */
 ~info.value(~sines)
 
-(~sines[5
+(~sines[2
 ].set(
-	\freq,800 + 10.0.rand
-	,\freqLag, 500.0
-	// ,\amp, 0.025
-	// ,\ampLag, 0.1
+	\freq,572 + 30.0.rand
+	,\freqLag, 1000
+	,\amp, 0.025
+	,\ampLag, 500
 ))
 
 /* BATCH CONTROL -- Freqs */
@@ -69,9 +71,9 @@ SynthDef("gliss",{arg ampLag=0.5, freqLag=0, panLag=0, panFreq=0.1,panMod=0, out
 
 /* LOOP CONTROL -- Freqs */
 (r.free; r = Routine({ loop {~sines.do({arg i; i.post; i.set( // Module lentement
-	\freq, exprand(1960,32690).postln
+	\freq, exprand(160,1690).postln
 	,\freqLag, 1000
-	, \amp, 0
+	, \amp, 0.025
 	, \ampLag,1000.0.rand
 	)}); 1000
 		.wait;}
@@ -86,6 +88,6 @@ r.stop
 /////////////////////////////////////////
 
 /* ADD */
-~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.01,\freq, 4400.0.rand]))
+~sines = ~sines.addAll(Synth(\gliss, [\amp, 0.001,\freq, 4540.0.rand]))
 
 ~sines[1].set(\freq,55,\amp, 0.1)

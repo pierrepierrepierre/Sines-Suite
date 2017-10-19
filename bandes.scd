@@ -56,11 +56,11 @@ SynthDef("playbuf",{
 
 
 Pbindef(\helico,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\att,0.1,\rel,0.3,\dur,Pn(Pshuf([1/8,1/16,1/16,1/8,1/4,1/8].sputter(0.75,8)),inf),\attC,12,\relC,-3,\sus,Pexprand(0.5,0),\amp,0.2).play
-Pbindef(\helico,\relC,3, \amp,0.2)
+Pbindef(\helico,\relC,-1)
 Pbindef(\helico,\stretch, 1)
 Pbindef(\helico).stop.clear
 
-Pbindef(\sur,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\sus,0,\att,0.1,\rel,0.5,\dur,Prand([1/4,1/3,2/4,3/4,2/3,1,4/3,5/4,6/4,7/4,7/3],inf),\attC,30,\relC,-3,\amp,0.3,\rate,1).play
+Pbindef(\sur,\instrument,\playbuf,\startPos,Pstutter(24*Pwhite(20,50),Pwhite(0,1.0)),\sus,0,\att,0.1,\rel,0.5,\dur,Prand([1/4,1/3,2/4,3/4,2/3,1,4/3,5/4,6/4,7/4,7/3],inf),\attC,30,\relC,0,\amp,0.3,\rate,1).play
 Pbindef(\sur,\dur,Pseq([Pgeom(0.1,1.01,300),Pseq([4],inf)],1),\sus,(Pkey(\dur)),\att,0,\rel,0,\startPos,Pstutter(Pwhite(1,8),Pwhite(0,1.0)));
 Pbindef(\sur, \amp, 0.01)
 Pbindef(\sur).stop.clear

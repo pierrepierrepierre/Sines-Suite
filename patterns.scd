@@ -244,7 +244,7 @@ Pbindef
 Pbindef(\testkick, \instrument, \kick, \dur, 0.6, \nharm, 2).play(quant:4)
 Pbindef(\testkick).stop.clear
 Pbindef(\mimi, \instrument, \snare).play
-Synth("snare").play
+Synth("snare",[\amp, 0.5]).play
 Pbindef(\mimi,\amp,0.5)
 Pbindef(\mimi).stop.clear
 Pbindef(\testsnare, \noiseRelC,-10, \amp,0.1)
@@ -274,14 +274,14 @@ Pdef.removeAll
 
 Pbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(300,310.0),\hifreq,Pwhite(3500,3520)).play(quant:[8,3])
 
-Pbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6), (1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)
+Pbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)
 Pbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])
 
 (Pbindef(\vent, \instrument,\noise,\dur, 0.08,\sus, 0.0001,\attSweepC, 20,\bw,Pwhite(0.1,0.5),\amp,0.25, \relC,-20).play;
 
 Pbindef(\vent2, \instrument,\noise,\dur,0.081,\sus,0,\rel,0.025,\att,0,\bw,0.002,\amp,0.15, \pan, Pwhite(-1.0,1)).play;)
 
-Pbindef(\wouin,\instrument,\blip,\dur,Pfunc{~lastKickEvent[\dur]},\att,0.001,\rel,Pwhite(0.02,0.0005),\sus,Pkey(\dur)*0.00009,\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])
+Pbindef(\wouin,\instrument,\blip,\dur,Prand([1/6,1/8,1/5,1/10],inf),\att,0.001,\rel,Pwhite(0.02,0.0005),\sus,Pkey(\dur) * Pexprand(0.00001, 0.05),\freq,Pstutter(Pexprand(500,260),Pwhite([400,600,2000],[800,1000,4000])),\amp,0.04, \pan, Pwhite(-0.5,0.5)).play(quant:[1,0])
 
 Pbindef(\vent, \pan, Pwhite(-0.5,0.5));
 
@@ -289,36 +289,46 @@ Pbindef(\vent, \pan, Pwhite(-0.5,0.5));
 
 ----- play
 
-Pbindef(\wouin,\dur,Pfunc{if (0.3.coin) {~lastKickEvent[\dur]} {[1/8, 1/6, 1/12].choose}})
-Pbindef(\wouin,\dur,Pseq([1/8, 1/6, 1/12], inf))
+Pbindef(\wouin,\dur,Pfunc{if (~noKick.(1/2)) { ~lastKickEvent[\dur] / rrand(3,6) } {[1/6,1/8,1/5,1/10].choose} })
+
+// Pbindef(\wouin,\sus, Pwhite(0.01,0.5) * Pkey(\dur))
+
+Pbindef(\heartbeat, \dur, Pwrand([Pseq([1/6, 1/4, 2/6, 1/4]),1],[0.9,0.1],inf))
 
 (Pbindef(\heartbeat, \dur,
 	Pseq([
 		(1/6),
-		Pwrand([ Pseq([1/4, 2/6, 1/4]), Pshuf([Pseq([((2/6)+(1/4)) / 5],5), 1/4])], [0.9,0.1])
+		Pwrand([
+			Pseq([1/4, 2/6, 1/4]),
+			Pshuf([ Pseq([((2/6)+(1/4)) / 5],5), 1/4])]
+		, [0.99,0.01]) // < change weights
 		,Pwrand([ 1/4,Pseq([1/4, 1])], [0.9,0.1])
 	],inf),
 	\amp, 0.8
 ))
 
-Pbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))
+/*Pbindef(\heartbeat, \amp, Pseq([1, Prand([1, 0])],inf))*/
 
 Pbindef(\dubbysnare, \noiseRelC, Pwhite(0,-7))
 Pbindef(\dubbysnare, \dur, Pwrand([2,1],[0.9,0.1],inf))
 
 Pbindef(\vent, \sus, Pfunc{ if((~noKick.(2/6)) && (0.3.coin)){rrand(0.07,0.0002)}{0.0001}})
 
+Pbindef(\wouin,\rel,Pfunc{if (~noKick.(1/2)) { rrand(0.1,0.3) } {rrand(0.02,0.0005)} })
+
 (Pbindef(\vent2,
-	\sus, Pfunc({ if (~noKick.(2/6)) {0.035} {0}}),
-	// \relC, Pfunc({ if (~noKick.(2/6)) {3} {-6}}),
-	// \dur, Pfunc({ if (~noKick.(1)) {0.125} {0.081} }),
-	// \bw, Pfunc({ if (~noKick.(2) {2} {0.002} )})
+	\sus, Pfunc({ if (~noKick.(2/6) && 0.5.coin) {0.13.rand} {0.01}}),
+	\dur, Pfunc({ if (~noKick.(1)) {0.25} {0.081} }),
+	\bw, Pfunc({ if (~noKick.(1)) {3.0.rand} {0.002} })
 ).play)
 Pbindef(\vent2, \bw, 0.02, \dur, 0.5, \sus, 0).play
 
-Pbindef(\wouin, \sus, Pfunc{ if ((~noKick.(1)) && (0.3.coin)) {rrand(0.01,0.25)} {rrand(0.0005,0.005)}})
-Pbindef(\wouin, \nharm, Pfunc{ if ((~noKick.(2/6)) && (0.3.coin)) {rrand(3,16)} {2}})
-Pbindef(\wouin, \rel, Pfunc{ if (~noKick.(2/6) && (0.1.coin)) {(~lastKickEvent[\dur]-0.05).abs} {rrand(0.05,0.0005)}})
+Pbindef(\wouin, \sus, Pfunc{ if ((~noKick.(2/6)) && (0.5.coin)) {rrand(0.051,0.35)} {rrand(0.0005,0.005)}})
+
+Pbindef(\wouin, \nharm, Pfunc{ if ((~noKick.(1/2)) && (0.3.coin)) {rrand(3,16)} {2}})
+
+Pbindef(\wouin, \rel, Pfunc{ if (~noKick.(2/6) && (0.1.coin)) {(~lastKickEvent[\dur]-0.001.rand).abs} {rrand(0.05,0.0005)}})
+
 Pbindef(\wouin, \dur, Pstutter(Pwhite(1,6),Prand([1/8,1/9,1/6,1/12],inf)))
 
 
@@ -337,7 +347,7 @@ Pbindef(\wouine).stop.clear
 Pbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+13), \dur, 4, \amp, 0.2).play(quant:[8,3])
 Pbindef(\baaas).stop
 
-Pbindef(\dubbysnare, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4);
+Pbindef(\dubbysnare, \noiseRelC,rrand(-4,-12), \dur, Pfunc{ if (~onBeat.(3) && (0.5.coin)) {~lastKickEvent[\dur]} {[1,2,0.5].choose}}, \amp, Pfunc{ if (~noKick.(1/4)){0.25}{if(~onBeat.value(3)){0.25}{0}}}).play(quant:4)
 
 Pbindef(\heartbeat, \amp, Pseq([1,Pwrand([1,0.5,0],[0.7,0.2,0],3)],inf))
 Pbindef(\heartbeat, \dur, Pwrand([1/6,1/4, Pwhite(1,4,1)],[0.85, 0.1,0.05],inf))
@@ -345,8 +355,8 @@ Pbindef(\heartbeat, \dur, Pwrand([1/6,1/4, Pwhite(1,4,1)],[0.85, 0.1,0.05],inf))
 Pbindef(\vent, \freq, Pstutter(Pwhite(30,200),Pexprand(6000,8000)))
 Pbindef(\vent, \bw,Pwhite(0.03,3))
 
-Pbindef(\vent, \relC,Pseq([Pgeom(-20,1.1)]),\att,Pfunc{if (~noKick.(2/6)) {rrand(0.01,0.55)} {0.001}}) // < ++ \att
-Pbindef(\vent2, \rel, 0.36) // < augmente et va dans l'espace
+Pbindef(\vent, \relC,Pseq([Pgeom(-20,1.1)]),\att,Pfunc{if (~noKick.(2/6)) {rrand(0.01,0.5)} {0.001}}) // < ++ \att
+Pbindef(\vent2, \rel, 0.16) // < augmente et va dans l'espace
 
 Pbindef(\vent).stop.clear;
 Pbindef(\vent2).stop.clear;
@@ -366,7 +376,7 @@ Pbindef(\wouine).stop;
 Pdef.removeAll
 
 /////// PARTY 2 : Clubbez moi
-Pbindef(\heartbeat).
+Pbindef(\heartbeat).play
 Pbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), 1],[0.9,0.1],inf))
 Pbindef(\heartbeat, \dur, Pwrand([ Pstutter(Pwhite(1,4),Pseq([1/6,1/4,2/6,1/4])), 1],[0.5,0.5],inf))
 Pbindef(\heartbeat, \dur, Pwrand([ Pseq([1/6,1/4,2/6,1/4]), Pseq([1/5],10), 1],[0.8,0.1,0.1],inf))
@@ -379,27 +389,27 @@ Pbindef(\dubbysnare, \amp,0.6 )
 
 Pbindef(\clap, \instrument, \clap, \dur, Pxrand([0.5,Pshuf([0.25,0.75])],inf), \amp, 0.3, \rq, Pwhite(0.2,0.6), \rel,Pwhite(0.2,0.4), \freq,900, \stretch, 0.5).play(quant:[4,0.5])
 
-Pbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(1,10), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] == (1/5) || ~lastKickEvent[\dur] >= 1){0.1}{0}}).play
+Pbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(1,10), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] >= 1){0.1}{0}}).play
 Pbindef(\tremble, \amp, 0.2)
 Pbindef(\tremble).stop
 
 Pbindef(\snare, \instrument, \snaredel, \dur, Prand([Pseq([1/3],3), Pseq([1/5],5)],inf), \amp, Pfunc{ if (~lastKickEvent[\dur] >= 0.5 ) {0.05} {0}}, \deldur, 1, \delfq, 350,  \deldur, 1.5, \sus, 0.15, \delvit, 0.001, \delfq, 1, \lenmul,0.5).play(quant:4)
-Pbindef(\snare, \crash, 0.4) // ++ crash pour surcharger cpu :: default = 0.1
+Pbindef(\snare, \crash, 0.04) // ++ crash pour surcharger cpu :: default = 0.1
 Pbindef(\snare).stop.clear
 
 (Pbindef(\snark, \instrument, \snaredel, \pan,Pwhite(-1.0,1),
-	\dur,Pfunc{ if(~lastKickEvent[\dur] >= 0.5) {rrand(0.1,3)}{0.5}},
-	\amp,Pfunc{ if(~lastKickEvent[\dur] >= 0.5){0.6}{0.001}},
+	\dur,Pfunc{ if(~lastKickEvent[\dur] >= 1) {rrand(0.1,3)}{0.5}},
+	\amp,Pfunc{ if(~lastKickEvent[\dur] >= 0.5){0.6}{0.01}},
 	\rel,Pwhite(0.05,1),\relC,-3, \deldur,Pwhite(0.05,0.3),\delvit,Pwhite(0.01,0.5),\delfq,Pwhite(1,30),
 	\ff,Pwrand([Pwhite(10,100,1), Pwhite(2000,5000,1)],[0.7,0.3],inf)
 ).play(quant:[4,2]))
-Pbindef(\snark, \crash, 0.13) // ++ crash pour surcharger cpu :: default = 2
+Pbindef(\snark, \crash, 0.013) // ++ crash pour surcharger cpu :: default = 2
 Pbindef(\snark).stop.clear;
 
 
-Pbindef(\roll, \instrument, \snare, \dur, 1/8, \noiseRelC, -12, \rel, 0.05,\att, 0.0001, \dec, 0.02, \relC, -8, \fq, [1300, 900], \hifreq, 1600, \noiseDecay, 0.05, \noiseDel, 0.01, \amp, Pfunc{if( ~noKick.(1)) {0.05} {0}}).play(quant:4)
+Pbindef(\roll, \instrument, \snare, \dur, Pfunc{if(~lastKickEvent[\dur] < 1) {~lastKickEvent[\dur]} {1/8}}, \noiseRelC, -12, \rel, 0.05,\att, 0.0001, \dec, 0.02, \relC, -8, \fq, [1300, 900], \hifreq, 1600, \noiseDecay, 0.05, \noiseDel, 0.01, \amp,Pfunc{ if(~lastKickEvent[\dur] >= 1) {0.05} {0.001}}).play(quant:4)
 Pbindef(\roll, \amp,0.1)
-Pbindef(\roll, \crash, 0.18) // ++ crash pour surcharger cpu :: default = 0.1
+Pbindef(\roll, \crash, 0.018) // ++ crash pour surcharger cpu :: default = 0.1
 
 Pbindef(\clap, \freq, Pseq([Pseries(900,1,600)],inf))
 Pbindef(\clap, \dur, Pshuf([Pxrand([0.5,Pshuf([0.25,0.75])],2), Pseq([0.25],8), 1,2],inf))
@@ -438,7 +448,7 @@ Pbindef(\soussnare,\noiseRelC,-30,\rel,0.75)
 Pbindef(\soussnare,\noiseRelC,Pseq([Pseq([-30],Pwhite(4,14,1)),Pseq([10],Pwhite(1,4,1))],inf))
 Pbindef(\soussnare).stop.clear;
 
-g=[]; f=[]; // < METS ça / ! ! ! \
+g=[]; e=[]; // < METS ça / ! ! ! \
 Pdef.removeAll;
 
 g = g.add(Synth(\autoglob,[\argA,10.0.rand,\argB,30.rand,\argC,rrand(500,1400),\amp,0.31,\panFreq,0.05, \ampLag, 0.2]))
@@ -446,8 +456,8 @@ g.do({arg i; i.set(\amp, 0, \ampLag, 100)})
 g.do({arg i; i.free}); g=[];
 
 e = e.add(Synth(\autoformant,[\fund,100.rand,\form,600.rand,\bw,1800.rand, \amp, 0.1, \ampLag, 0.2]))
-f.do({arg i; i.set(\amp, 0, \ampLag, 510)})
-f.do({arg i; i.free}); f = [];
+e.do({arg i; i.set(\amp, 0, \ampLag, 510)})
+e.do({arg i; i.free}); e = [];
 
 // BAAAASSSS
 Pbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,[50,65] * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)
@@ -474,7 +484,7 @@ Pbindef(\snark, \dur, Pseq([1/4,3/4],inf))
 Pbindef(\snark).stop.clear;
 
 Pbindef(\kik, \instrument, \kick, \dur, Pshuf([1,Prand([1,2,1.5]),1,0.5],inf), \amp, 0.2, \stretmch, 0.5, \freqAC, 2, \freqBC, -16).play(quant:4)
-Pbindef(\kik, \dur, 1/7, \freqAC,8, \freqBC,-30)
+Pbindef(\kik, \dur, 1/5, \freqAC,8, \freqBC,-30)
 Pbindef(\kik).stop.clear
 
 //////////////////////////////////////////////////////////////////////////
