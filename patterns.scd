@@ -239,7 +239,27 @@ TempoClock.schedAbs(TempoClock, TempoClock.nextBar, {TempoClock.beatsPerBar_(4)}
 // Démarre le HEARTBEAT et le WOUIN
 // Augmente la variation de DUBBYSNARE et ajoute lui un coup
 // Divise DUBBYSNARE et mets le tempo à 0.05
-Pbindef
+
+// SOUNDCHECK
+/* Snare Level */
+Pbindef(\snareChk,\instrument,\snare,\dur,Prand([1/2],inf),\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.123,\fq,Pwhite(500,510.0),\hifreq,Pwhite(4150,4220)).play(quant:[4,3])
+Pbindef(\snareChk).stop
+
+/* Snare Freqs */
+Pbindef(\snareChk,\fq,Pstutter(1,Pseries(280, 1)).trace)
+
+/* Kick level */
+Pbindef(\kickChk, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Prand([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20).play(quant:[4,0])
+Pbindef(\kickChk, \dur, Prand([1/4, 1/2, 1/8],inf))
+
+/* Kick Freqs */
+Pbindef(\kickChk, \instrument,\kick,\freqA,Pwhite(2540,2550),\freqC,Pwhite(102,104.0),\freqB,Pstutter(1,Pseries(60, 1)).trace).play
+Pbindef(\kickChk, \freqB, \freqC, Pstutter(3,Pseries(50, 1)).trace)
+
+/* Bass */
+Pbindef(\baaas, \instrument, \blip, \sus, 1, \freq, (Pwhite(40,45!3)+33).trace, \dur, 4, \amp, 0.2).play(quant:[4,3])
+
+
 // PUMP
 Pbindef(\testkick, \instrument, \kick, \dur, 0.6, \nharm, 2).play(quant:4)
 Pbindef(\testkick).stop.clear
@@ -266,13 +286,12 @@ Pbindef(\introb, \dur, 0.1)
 Pbindef(\introb).stop.clear
 
 Synth([\noiseDwn, \noiseUp].choose, [\sus, 1.0.rand, \rel, 2.rand, \amp, 0.008])
-
 Synth(\sine, [\freq, 600.rand, \amp, 0.05.rand, \pan, rrand(-1, 1.0)])
 
 Pdef.removeAll
 //// PARTY 1
 
-Pbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(300,310.0),\hifreq,Pwhite(3500,3520)).play(quant:[8,3])
+Pbindef(\dubbysnare,\instrument,\snare,\dur,8,\amp,0.5,\noiseRelC,Pwhite(-7.0,-9),\noiseRel,0.4,\fq,Pwhite(500,510.0),\hifreq,Pwhite(4150,4220)).play(quant:[8,3])
 
 Pbindef(\heartbeat, \instrument,\kick,\amp,0.8,\freqA,Pwhite(2540,2550), \freqAC,-7,\freqBC,10, \freqC,Pwhite(102,104.0), \freqB,Pwhite(60.0,62),\dur,Pseq([(1/6),(1/4),(2/6),(1/4)],inf),\rel, 0.2, \relC,-20)
 Pbindef(\heartbeat).collect({|e| ~lastKickEvent = e;}).play(quant:[8,0,0.1])
@@ -389,7 +408,7 @@ Pbindef(\dubbysnare, \amp,0.6 )
 
 Pbindef(\clap, \instrument, \clap, \dur, Pxrand([0.5,Pshuf([0.25,0.75])],inf), \amp, 0.3, \rq, Pwhite(0.2,0.6), \rel,Pwhite(0.2,0.4), \freq,900, \stretch, 0.5).play(quant:[4,0.5])
 
-Pbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) + Pwhite(1,10), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] >= 1){0.1}{0}}).play
+Pbindef(\tremble, \instrument, \sine, \freq,Pwhite([60,63], [65,69]) - Pwhite(10,20), \dur, 1, \sus, 1, \amp, Pfunc {if(~lastKickEvent[\dur] >= 1){0.25}{0}}).play
 Pbindef(\tremble, \amp, 0.2)
 Pbindef(\tremble).stop
 
@@ -460,7 +479,7 @@ e.do({arg i; i.set(\amp, 0, \ampLag, 510)})
 e.do({arg i; i.free}); e = [];
 
 // BAAAASSSS
-Pbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,[50,65] * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)
+Pbindef(\deep,\instrument,\kick,\freqC,[75,70] * Pseq([1,1.33],inf),\freqB,([50,65]+30) * Prand([1,2],inf),\rel,Pwhite(1,4.0),\relC,60,\freqBC,-50,\dur,Prand([6,8,12],inf),\amp,0.1).play(quant:4)
 Pbindef(\deep).stop
 
 // Noises
