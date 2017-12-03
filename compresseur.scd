@@ -31,15 +31,18 @@ x.set(\in, ~compIn.index, \thresh, 1, \slopeAbove, 1, \rel, 0.1)
 x.free
 
 
-// SIDE CHAIN // à faire <<< ajouter le truc en tête du serveur pour gérer instanciation dans ordre différent
-y = Synth.new("compresseur",[\in, ~compIn.index, \ctrl, ~compCtrl.index])
-y.set(\thresh, 0.01,\amp, 1, \slopeBelow, 1, \slopeAbove,0.005, \rel, 0.05, \clampT, 0.001)
-y.set(\rel, 0.25, \clampT, 0.5, \amp, 1,\slopeAbove,0.1)
+// SIDE CHAIN //
+(y = Synth.new("compresseur",[\in, ~compIn.index, \ctrl, ~compCtrl.index,
+	\thresh, 0.001,\amp, 1, \slopeBelow, 1, \slopeAbove,0.001, \rel, 0.5, \clampT, 0.002],s,\addToTail))
+y.set(\rel, 0.1)
 y.free
 
 // Son pour test
 u = Synth(\droneSine,[\amp, 0.2, \freq, 190, \out, ~compIn.index])
 u.set()
 u.free
+
+
+Pbindef(\kt,\instrument, \kick, \freqB, 100, \out, [0, ~compCtrl.index], \dur, Pseq([2,4],inf), \amp,1, \sus, 0.5, \rel, 0.1, \relC, -3).play
 
 ~compIn.scope
